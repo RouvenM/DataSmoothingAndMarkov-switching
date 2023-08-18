@@ -248,7 +248,7 @@ hist(diff(data$shooting_perf), prob = T, main = "Analysis without pre-processing
 curve(delta[1]*dnorm(x, mu[1], sigma[1]), add = T, lwd = 3, col = "orange", n = 500)
 curve(delta[2]*dnorm(x, mu[2], sigma[2]), add = T, lwd = 3, col = "deepskyblue", n = 500)
 
-# withouth preprocessing we do not find state separation regarging the means of the state dependent
+# without preprocessing we do not find state separation regarding the means of the state-dependent
 # distributions, i.e. between increasing and decreasing performance, but only between phases of different performance variation.
 
 
