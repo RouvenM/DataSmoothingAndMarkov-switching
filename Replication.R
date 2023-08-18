@@ -231,6 +231,7 @@ curve(delta_sim[2]*dnorm(x, mu_sim[2], sigma_sim[2]), add = T, lwd = 3, col = "d
 
 # Model without preprocessing ---------------------------------------------
 
+# performance differences: Looking for increasing and decreasing performance
 theta.star = c(qlogis(c(0.7, 0.7)), -0.1, 0.1, log(c(0.1, 0.1)))
 mod_wo = nlm(mllk, theta.star, x = diff(data$shooting_perf), print.level = 2)
 
@@ -243,7 +244,7 @@ mu = theta.star[3:4]
 sigma = exp(theta.star[5:6])
 
 par(mfrow = c(1,1))
-hist(diff(data$shooting_perf), prob = T, main = "Analysis without pre-processing", xlab = "First-order differences", breaks = 30, border = "white")
+hist(diff(data$shooting_perf), prob = T, main = "Analysis without pre-processing", xlab = "First-order differences", breaks = 30, border = "white", ylim = c(0,2.3))
 curve(delta[1]*dnorm(x, mu[1], sigma[1]), add = T, lwd = 3, col = "orange", n = 500)
 curve(delta[2]*dnorm(x, mu[2], sigma[2]), add = T, lwd = 3, col = "deepskyblue", n = 500)
 
@@ -251,4 +252,23 @@ curve(delta[2]*dnorm(x, mu[2], sigma[2]), add = T, lwd = 3, col = "deepskyblue",
 # distributions, i.e. between increasing and decreasing performance, but only between phases of different performance variation.
 
 
+# raw time series: not looking for increasing or decreasing performance, but "good" or "bad" performance.
+theta.star = c(qlogis(c(0.7, 0.7)), 0, 0, log(c(0.1, 0.4)))
+mod_wo2 = nlm(mllk, theta.star, x = data$shooting_perf, print.level = 2)
 
+theta.star = mod_wo2$estimate
+Gamma = diag(plogis(theta.star[1:2]))
+Gamma[1, 2] = 1 - Gamma[1, 1]
+Gamma[2, 1] = 1 - Gamma[2, 2]
+delta = solve(t(diag(2) - Gamma + 1), c(1, 1), tol = 1e-30)
+mu = theta.star[3:4]
+sigma = exp(theta.star[5:6])
+
+par(mfrow = c(1,1))
+hist(data$shooting_perf, prob = T, main = "Analysis without pre-processing", xlab = "Shooting performance", breaks = 40, border = "white", xlim = c(-1,1), ylim = c(0, 3.7))
+curve(delta[1]*dnorm(x, mu[1], sigma[1]), add = T, lwd = 3, col = "orange", n = 500)
+curve(delta[2]*dnorm(x, mu[2], sigma[2]), add = T, lwd = 3, col = "deepskyblue", n = 500)
+# here we also find no state separation regarding the means of the component distributions.
+
+round(Gamma,2)
+# as both rows of the t.p.m. are fairly similar, this model is indeed close to an independent mixture model
